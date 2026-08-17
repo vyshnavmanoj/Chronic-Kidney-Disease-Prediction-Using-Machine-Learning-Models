@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CKD Prediction</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main>
+    <h1>CKD Prediction</h1>
+    <p class="subtitle">Enter patient values and submit to predict CKD or No CKD.</p>
+
+    <form id="predictionForm">
+      <section>
+        <h2>Clinical Values</h2>
+        <div class="grid">
+          <label>
+            Age
+            <span class="range">Accepted range: 24 to 88</span>
+            <input type="number" name="age" min="24" max="88" step="1" placeholder="57" required>
+          </label>
+
+          <label>
+            BMI
+            <span class="range">Accepted range: 16.0 to 45.0</span>
+            <input type="number" name="bmi" min="16" max="45" step="0.1" placeholder="27.6" required>
+          </label>
+
+          <label>
+            Systolic BP
+            <span class="range">Accepted range: 90 to 190</span>
+            <input type="number" name="systolicBp" min="90" max="190" step="1" placeholder="125" required>
+          </label>
+
+          <label>
+            Diastolic BP
+            <span class="range">Accepted range: 55 to 117</span>
+            <input type="number" name="diastolicBp" min="55" max="117" step="1" placeholder="76" required>
+          </label>
+
+          <label>
+            Serum Creatinine
+            <span class="range">Accepted range: 0.55 to 7.20</span>
+            <input type="number" name="serumCreatinine" min="0.55" max="7.2" step="0.01" placeholder="1.83" required>
+          </label>
+
+          <label>
+            eGFR
+            <span class="range">Accepted range: 8.0 to 120.0</span>
+            <input type="number" name="egfr" min="8" max="120" step="0.1" placeholder="75.0" required>
+          </label>
+
+          <label>
+            Blood Urea
+            <span class="range">Accepted range: 7.0 to 105.0</span>
+            <input type="number" name="bloodUrea" min="7" max="105" step="0.1" placeholder="27.4" required>
+          </label>
+
+          <label>
+            Hemoglobin
+            <span class="range">Accepted range: 7.5 to 17.5</span>
+            <input type="number" name="hemoglobin" min="7.5" max="17.5" step="0.1" placeholder="13.2" required>
+          </label>
+
+          <label>
+            Urine Protein
+            <span class="range">Accepted range: 0 to 4</span>
+            <input type="number" name="urineProtein" min="0" max="4" step="1" placeholder="1" required>
+          </label>
+
+          <label>
+            Urine Specific Gravity
+            <span class="range">Accepted range: 1.005 to 1.030</span>
+            <input type="number" name="urineSpecificGravity" min="1.005" max="1.03" step="0.001" placeholder="1.016" required>
+          </label>
+
+          <label>
+            Blood Glucose
+            <span class="range">Accepted range: 65.0 to 332.1</span>
+            <input type="number" name="bloodGlucose" min="65" max="332.1" step="0.1" placeholder="112.7" required>
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Other Details</h2>
+        <div class="grid">
+          <label>Gender
+            <select name="gender">
+              <option>Female</option>
+              <option>Male</option>
+            </select>
+          </label>
+
+          <label>Diabetes Mellitus
+            <select name="diabetesMellitus">
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </label>
+
+          <label>Hypertension
+            <select name="hypertension">
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </label>
+
+          <label>Smoking Status
+            <select name="smokingStatus">
+              <option>Current</option>
+              <option>Former</option>
+              <option>Never</option>
+            </select>
+          </label>
+
+          <label>Family History CKD
+            <select name="familyHistoryCkd">
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </label>
+
+          <label>Anemia
+            <select name="anemia">
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </label>
+
+          <label>Pedal Edema
+            <select name="pedalEdema">
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <button type="submit">Predict</button>
+    </form>
+
+    <section id="result" class="result hidden"></section>
+
+    <p class="note">This tool uses the tuned XGBoost model and is for project demonstration only.</p>
+  </main>
+
+  <script>
+    const form = document.getElementById("predictionForm");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const response = await fetch("/predict", {
+        method: "POST",
+        body: new URLSearchParams(new FormData(form))
+      });
+
+      const data = await response.json();
+      result.classList.remove("hidden");
+      result.innerHTML = `
+        <h2>Prediction Result</h2>
+        <p class="prediction">${data.label}</p>
+        <p>CKD probability: ${data.probability}</p>
+      `;
+    });
+  </script>
+</body>
+</html>
